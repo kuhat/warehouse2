@@ -44,24 +44,22 @@ def lambda_handler(event, context):
         filename = message['filename']
         print("bucket: " + bucket)
         print("fileName: " + filename)
-        rekognition_response = rekognition.detect_labels(
+        rekognition_response = rekognition.detect_text(
             Image={
                 'S3Object': {
                     'Bucket': bucket,
                     'Name': filename
                 }
-            },
-            MaxLabels=10,
-            MinConfidence=75
+            }
         )
-        print("rekognition response: " + rekognition_response)
-        detected_labels = [label['Name'] for label in rekognition_response['Labels']]
-        print("detected_labels: " + str(detected_labels))
+        print("rekognition response: " + str(rekognition_response))
+        detected_text = [text_detection['DetectedText'] for text_detection in rekognition_response['TextDetections']]
+        print("detected_labels: " + str(detected_text))
         try:
             table.put_item(
                 Item={
                     'file_name': filename,
-                    'detected_labels': json.dumps(detected_labels),
+                    'detected_labels': json.dumps(detected_text),
                 }
             )
             print(f'Successfully stored the detected content in DynamoDB for {filename}')
