@@ -1,0 +1,36 @@
+[
+  {
+    'eventVersion': '2.1',
+    'eventSource': 'aws:s3',
+    'awsRegion': 'us-east-1',
+    'eventTime': '2023-04-14T21:26:33.024Z',
+    'eventName': 'ObjectCreated:Put',
+    'userIdentity': {
+      'principalId': 'A38R3XV8GZM4J1'
+    },
+    'requestParameters': {
+      'sourceIPAddress': '128.197.29.234'
+    },
+    'responseElements': {
+      'x-amz-request-id': 'KXMMQ4110GKB3XVA',
+      'x-amz-id-2': 'A7FuxsFl3l3SlCOhvaqa66n5ZgKJkwE2EhCcyQX+2f2QWRZ+01MP4kDIqgbmw6vRA4k4r9QHrKipaSxF57u3YqC0aiJDko9b'
+    },
+    's3': {
+      's3SchemaVersion': '1.0',
+      'configurationId': '1dac41b6-17b7-434f-890f-0c663a9ca7ae',
+      'bucket': {
+        'name': 'warehouse2-imgbucket-1oollshpqbnu6',
+        'ownerIdentity': {
+          'principalId': 'A38R3XV8GZM4J1'
+        },
+        'arn': 'arn:aws:s3:::warehouse2-imgbucket-1oollshpqbnu6'
+      },
+      'object': {
+        'key': 'gitProfile.jpg',
+        'size': 26564,
+        'eTag': '31891fe493cd50087a96ac3b007b0eb9',
+        'sequencer': '006439C508EBD325E1'
+      }
+    }
+  }
+]

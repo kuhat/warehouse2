@@ -1,0 +1,82 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Queue Processor
+
+Resources:
+  QueueProcessorFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Image
+      Events:
+        S3Event:
+          Type: S3
+          Properties:
+            Bucket: !Ref ImgBucket
+            Events: s3:ObjectCreated:*
+        SQSEvent:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt Queue.Arn
+            BatchSize: 1
+      Environment:
+        Variables:
+          QUEUE_URL: !Ref QueueURL
+          TABLE_NAME: !Ref ImageTextTable
+      Policies:
+        - SQSSendMessagePolicy:
+            QueueName: !Ref Queue
+        - SQSPollerPolicy:
+            QueueName: !Ref Queue
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - rekognition:DetectLabels
+              Resource: '*'
+            - Effect: Allow
+              Action:
+                - dynamodb:PutItem
+              Resource: !GetAtt ImageTextTable.Arn
+            - Effect: Allow
+              Action:
+                - s3:GetObject*
+              Resource: !Sub "arn:aws:s3:::${AWS::StackName}-${AWS::Region}-${AWS::AccountId}*"
+            - Effect: Allow
+              Action:
+                - sqs:*
+              Resource: !GetAtt Queue.Arn
+    Metadata:
+      DockerTag: queueProcessor
+      DockerContext: .
+      Dockerfile: Dockerfile
+
+  ImgBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "${AWS::StackName}-${AWS::Region}-${AWS::AccountId}"
+
+  Queue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: simplequeue
+
+  QueueURL:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: QueueURL
+      Type: String
+      Value: !GetAtt Queue.Arn
+
+  ImageTextTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: ImageTextTable
+      AttributeDefinitions:
+        - AttributeName: file_name
+          AttributeType: S
+      KeySchema:
+        - AttributeName: file_name
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
