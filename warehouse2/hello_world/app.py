@@ -42,20 +42,19 @@ def lambda_handler(event, context):
         print(message)
         bucket = message['bucket']
         filename = message['filename']
-        print("bucket: " + bucket)
-        print("fileName: " + filename)
-        rekognition_response = rekognition.detect_text(
-            Image={
-                'S3Object': {
-                    'Bucket': bucket,
-                    'Name': filename
-                }
-            }
-        )
-        print("rekognition response: " + str(rekognition_response))
-        detected_text = [text_detection['DetectedText'] for text_detection in rekognition_response['TextDetections']]
-        print("detected_labels: " + str(detected_text))
+        print("bucket: " + bucket + "fileName: " + filename)
         try:
+            rekognition_response = rekognition.detect_text(
+                Image={
+                    'S3Object': {
+                        'Bucket': bucket,
+                        'Name': filename
+                    }
+                }
+            )
+            print("rekognition response: " + str(rekognition_response))
+            detected_text = [text_detection['DetectedText'] for text_detection in rekognition_response['TextDetections']]
+            print("detected_labels: " + str(detected_text))
             table.put_item(
                 Item={
                     'file_name': filename,
@@ -67,9 +66,9 @@ def lambda_handler(event, context):
                 'statusCode': 200,
                 'body': json.dumps('Successfully stored the detected content in DynamoDB.')
             }
-        except Exception as error:
-            print(f'Error storing detected content in DynamoDB: {error}')
+        except Exception as e:
+            print(str(e))
             return {
-                'statusCode': 200,
-                'body': json.dumps(f'Error storing detected content in DynamoDB: {error}')
+                'statusCode': 400,
+                'body': json.dumps('file type not supported!')
             }

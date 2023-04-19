@@ -27,6 +27,8 @@ Resources:
             QueueName: !Ref Queue
         - SQSPollerPolicy:
             QueueName: !Ref Queue
+        - SQSPollerPolicy:
+            QueueName: !Ref DeadLetterQueue
         - Version: '2012-10-17'
           Statement:
             - Effect: Allow
@@ -59,6 +61,14 @@ Resources:
     Type: AWS::SQS::Queue
     Properties:
       QueueName: simplequeue
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt DeadLetterQueue.Arn
+        maxReceiveCount: 2
+
+  DeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: dLQueue
 
   QueueURL:
     Type: AWS::SSM::Parameter
